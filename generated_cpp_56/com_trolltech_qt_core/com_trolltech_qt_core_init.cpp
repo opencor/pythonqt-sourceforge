@@ -106,7 +106,6 @@ PythonQt::priv()->registerCPPClass("QMimeDatabase", "", "QtCore", PythonQtCreate
 PythonQt::priv()->registerCPPClass("QMimeType", "", "QtCore", PythonQtCreateObject<PythonQtWrapper_QMimeType>, NULL, module, PythonQt::Type_RichCompare);
 PythonQt::priv()->registerCPPClass("QModelIndex", "", "QtCore", PythonQtCreateObject<PythonQtWrapper_QModelIndex>, NULL, module, PythonQt::Type_RichCompare);
 PythonQt::priv()->registerCPPClass("QMutex", "QBasicMutex", "QtCore", PythonQtCreateObject<PythonQtWrapper_QMutex>, NULL, module, 0);
-PythonQt::priv()->registerClass(&QObject::staticMetaObject, "QtCore", PythonQtCreateObject<PythonQtWrapper_QObject>, PythonQtSetInstanceWrapperOnShell<PythonQtShell_QObject>, module, 0);
 PythonQt::priv()->registerClass(&QParallelAnimationGroup::staticMetaObject, "QtCore", PythonQtCreateObject<PythonQtWrapper_QParallelAnimationGroup>, PythonQtSetInstanceWrapperOnShell<PythonQtShell_QParallelAnimationGroup>, module, 0);
 PythonQt::priv()->registerClass(&QPauseAnimation::staticMetaObject, "QtCore", PythonQtCreateObject<PythonQtWrapper_QPauseAnimation>, PythonQtSetInstanceWrapperOnShell<PythonQtShell_QPauseAnimation>, module, 0);
 PythonQt::priv()->registerCPPClass("QPersistentModelIndex", "", "QtCore", PythonQtCreateObject<PythonQtWrapper_QPersistentModelIndex>, NULL, module, PythonQt::Type_RichCompare);
