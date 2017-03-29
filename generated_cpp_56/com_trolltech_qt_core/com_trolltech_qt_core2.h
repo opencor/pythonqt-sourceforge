@@ -1058,6 +1058,8 @@ enum Type{
   Read = QSocketNotifier::Read,   Write = QSocketNotifier::Write,   Exception = QSocketNotifier::Exception};
 public slots:
 void delete_QSocketNotifier(QSocketNotifier* obj) { delete obj; } 
+QSocketNotifier* new_QSocketNotifier(int socket, QSocketNotifier::Type type, QObject *parent = Q_NULLPTR) {
+   return new QSocketNotifier(socket, type, parent); }
    bool  py_q_event(QSocketNotifier* theWrappedObject, QEvent*  arg__1){  return (((PythonQtPublicPromoter_QSocketNotifier*)theWrappedObject)->py_q_event(arg__1));}
    bool  isEnabled(QSocketNotifier* theWrappedObject) const;
    QSocketNotifier::Type  type(QSocketNotifier* theWrappedObject) const;
