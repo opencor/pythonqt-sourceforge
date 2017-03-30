@@ -240,9 +240,11 @@ public Q_SLOTS:
     return new PQCppObjectNoWrap(0);
   }
   PQCppObjectNoWrap* new_PQCppObjectNoWrap(const PQCppObjectNoWrap& other) {
+    Q_UNUSED(other);
     return new PQCppObjectNoWrap(1);
   }
   PQCppObjectNoWrap* new_PQCppObjectNoWrap(double value) {
+    Q_UNUSED(value);
     return new PQCppObjectNoWrap(2);
   }
 
@@ -290,6 +292,36 @@ public:
   // with int overload
   TestEnumFlag testEnumFlag3(PQCppObject2* obj, int flag);
   TestEnumFlag testEnumFlag3(PQCppObject2* obj, TestEnumFlag flag);
+
+};
+
+typedef PQCppObject2 PQCppObjectQFlagOnly;
+
+class PQCppObjectQFlagOnlyDecorator : public QObject {
+  Q_OBJECT
+
+public:
+  Q_FLAGS(TestEnumFlag)
+
+  enum TestEnumFlag {
+    TestEnumValue1 = 0,
+    TestEnumValue2 = 1
+  };
+
+  Q_DECLARE_FLAGS(TestEnum, TestEnumFlag)
+
+  public slots:
+  PQCppObjectQFlagOnly* new_PQCppObjectQFlagOnly() {
+    return new PQCppObjectQFlagOnly();
+  }
+
+  TestEnumFlag testEnumFlag1(PQCppObjectQFlagOnly* obj, TestEnumFlag flag);
+
+  PQCppObjectQFlagOnly::TestEnumFlag testEnumFlag2(PQCppObjectQFlagOnly* obj, PQCppObjectQFlagOnly::TestEnumFlag flag);
+
+  // with int overload
+  TestEnumFlag testEnumFlag3(PQCppObjectQFlagOnly* obj, int flag);
+  TestEnumFlag testEnumFlag3(PQCppObjectQFlagOnly* obj, TestEnumFlag flag);
 
 };
 
@@ -399,13 +431,13 @@ public Q_SLOTS:
   void testNoArg() { _called = true; }
 
   //! overload test!
-  void overload(bool a) { _calledOverload = 0; _called = true; }
-  void overload(float a) { _calledOverload = 1; _called = true;}
-  void overload(int a) { _calledOverload = 2; _called = true;}
-  void overload(const QString& str) { _calledOverload = 3; _called = true;}
-  void overload(const QStringList& str) { _calledOverload = 4; _called = true;}
-  void overload(QObject* str) { _calledOverload = 5; _called = true;}
-  void overload(float a, int b) { _calledOverload = 6; _called = true;}
+  void overload(bool a) { Q_UNUSED(a); _calledOverload = 0; _called = true; }
+  void overload(float a) { Q_UNUSED(a); _calledOverload = 1; _called = true;}
+  void overload(int a) { Q_UNUSED(a); _calledOverload = 2; _called = true;}
+  void overload(const QString& str) { Q_UNUSED(str); _calledOverload = 3; _called = true;}
+  void overload(const QStringList& str) { Q_UNUSED(str); _calledOverload = 4; _called = true;}
+  void overload(QObject* str) { Q_UNUSED(str); _calledOverload = 5; _called = true;}
+  void overload(float a, int b) { Q_UNUSED(a); Q_UNUSED(b);_calledOverload = 6; _called = true;}
 
   //! POD values:
   int getInt(int a) {   _called = true; return a; }
