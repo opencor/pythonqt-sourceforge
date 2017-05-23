@@ -305,10 +305,11 @@ PythonQtMemberInfo PythonQtClassInfo::member(const char* memberName)
     return info;
   } else {
     bool found = false;
-  
-    found = lookForPropertyAndCache(memberName);
+
+    // See https://sourceforge.net/p/pythonqt/discussion/631392/thread/7535dabd/
+    found = lookForMethodAndCache(memberName);
     if (!found) {
-      found = lookForMethodAndCache(memberName);
+      found = lookForPropertyAndCache(memberName);
     }
     if (!found) {
       if (_meta) {

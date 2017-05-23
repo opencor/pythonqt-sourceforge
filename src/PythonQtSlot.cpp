@@ -39,6 +39,8 @@
 */
 //----------------------------------------------------------------------------------
 
+// Version from https://sourceforge.net/p/pythonqt/discussion/631393/thread/26038624/
+
 #include "PythonQt.h"
 #include "PythonQtSlot.h"
 #include "PythonQtInstanceWrapper.h"
@@ -82,9 +84,8 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   const PythonQtSlotInfo::ParameterInfo& returnValueParam = params.at(0);
   // set return argument to NULL
   argList[0] = NULL;
-  
+
   bool ok = true;
-  bool skipFirst = false;
   PythonQtPassThisOwnershipType passThisOwnership = IgnoreOwnership;
 
   int instanceDecoOffset = 0;
@@ -92,7 +93,6 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   // would go away if it is moved into the if scope
   void* arg1 = NULL;
   if (info->isInstanceDecorator()) {
-    skipFirst = true;
     instanceDecoOffset = 1;
 
     // for decorators on CPP objects, we take the cpp ptr, for QObjects we take the QObject pointer
@@ -334,69 +334,133 @@ PyObject *PythonQtMemberFunction_Call(PythonQtSlotInfo* info, PyObject* m_self, 
 
 PyObject *PythonQtSlotFunction_CallImpl(PythonQtClassInfo* classInfo, QObject* objectToCall, PythonQtSlotInfo* info, PyObject *args, PyObject * kw, void* firstArg, void** directReturnValuePointer,  PythonQtPassThisOwnershipType* passThisOwnershipToCPP)
 {
-  if (kw != NULL && PyDict_Check(kw) && (PyDict_Size(kw) > 0)) {
-    QString e = QString("Calling C++ functions with Python keywords is not supported! Function: ") + info->fullSignature(true) + " Keywords: " + PythonQtConv::PyObjGetString(kw);
-    PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
-    return NULL;
-  }
-
   int argc = args?PyTuple_Size(args):0;
+  int arguments_size = argc;
+
   if (passThisOwnershipToCPP) {
     *passThisOwnershipToCPP = IgnoreOwnership;
   }
-
-#ifdef PYTHONQT_DEBUG
-  std::cout << "called " << info->metaMethod()->typeName() << " " << info->signature() << std::endl;
-#endif
+  PyObject* arguments = args;
+  PyObject* combined_args = NULL;
 
   PyObject* r = NULL;
   bool ok = false;
+
   if (directReturnValuePointer) {
     *directReturnValuePointer = NULL;
   }
-  if (info->nextInfo()) {
-    // overloaded slot call, try on all slots with strict conversion first
-    bool strict = true;
-    PythonQtSlotInfo* i = info;
-    while (i) {
-      bool skipFirst = i->isInstanceDecorator();
-      if (i->parameterCount()-1-(skipFirst?1:0) == argc) {
-        PyErr_Clear();
-        ok = PythonQtCallSlot(classInfo, objectToCall, args, strict, i, firstArg, &r, directReturnValuePointer, passThisOwnershipToCPP);
-        if (PyErr_Occurred() || ok) break;
-      }
-      i = i->nextInfo();
-      if (!i) {
-        if (strict) {
-          // one more run without being strict
-          strict = false;
-          i = info;
+
+  if( kw ) {
+    // keyword arguments are given as dict, must be mapped to arguments in correct order
+    // very complicated, so call them only on a slot with last variable name kwargs
+    // slot must be implemented as
+    // <type> <name>(any number of positional arguments, QVariantMap kwargs)
+    int combined_args_size = argc + 1;
+    combined_args = PyTuple_New(combined_args_size);
+
+    for (int i = 0; i<argc; i++) {
+      PyTuple_SetItem(combined_args,i,PyTuple_GetItem(args,i));
+    }
+
+    PyTuple_SetItem(combined_args,combined_args_size - 1,kw);
+    arguments = combined_args;
+    arguments_size = combined_args_size;
+
+    bool kwSlotFound=false;
+
+    PythonQtSlotInfo* slotInfo = NULL;
+
+    QList<QByteArray> parameterNames;
+    if (info->nextInfo()) {
+      // overloaded slot call, try on all slots with strict conversion first
+      slotInfo = info;
+      while (slotInfo) {
+        parameterNames = slotInfo->metaMethod()->parameterNames();
+        if( !parameterNames.isEmpty() && QString::fromLatin1(parameterNames.last().constData()) == QString("kwargs") ) {
+          kwSlotFound = true;
+          break;
         }
+        slotInfo = slotInfo->nextInfo();
+      }
+    } else {
+      //non overloaded call
+      parameterNames = info->metaMethod()->parameterNames();
+      if( !parameterNames.isEmpty() && QString::fromLatin1(parameterNames.last().constData()) == QString("kwargs") ) {
+        kwSlotFound = true;
       }
     }
-    if (!ok && !PyErr_Occurred()) {
-      QString e = QString("Could not find matching overload for given arguments:\n" + PythonQtConv::PyObjGetString(args) + "\n The following slots are available:\n");
-      PythonQtSlotInfo* i = info;
-      while (i) {
-        e += QString(i->fullSignature()) + "\n";
-        i = i->nextInfo();
-      }
+    if(kwSlotFound) {
+#ifdef PYTHONQT_DEBUG
+      std::cout << "called " << slotInfo->metaMethod()->typeName() << " " << slotInfo->signature().constData() << std::endl;
+#endif
+
+      ok = PythonQtCallSlot(classInfo, objectToCall, arguments, false, slotInfo, firstArg, &r, directReturnValuePointer, passThisOwnershipToCPP);
+
+    } else {
+      QString e = QString("Called ") + info->fullSignature() + " with keyword arguments, bot no slot with kwargs argument found,";
+      e += " full keyword support acutally not implemented";
       PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
     }
-  } else {
-    // simple (non-overloaded) slot call
-    bool skipFirst = info->isInstanceDecorator();
-    if (info->parameterCount()-1-(skipFirst?1:0) == argc) {
-      PyErr_Clear();
-      ok = PythonQtCallSlot(classInfo, objectToCall, args, false, info, firstArg, &r, directReturnValuePointer, passThisOwnershipToCPP);
+  }
+
+  if( !PyErr_Occurred() && !ok)
+  {
+    if (info->nextInfo()) {
+      // overloaded slot call, try on all slots with strict conversion first
+      bool strict = true;
+      PythonQtSlotInfo* i = info;
+      while (i) {
+        bool skipFirst = i->isInstanceDecorator();
+        if (i->parameterCount()-1-(skipFirst?1:0) == arguments_size) {
+          PyErr_Clear();
+          ok = PythonQtCallSlot(classInfo, objectToCall, arguments, strict, i, firstArg, &r, directReturnValuePointer, passThisOwnershipToCPP);
+          if (PyErr_Occurred() || ok) {
+#ifdef PYTHONQT_DEBUG
+            std::cout << "called " << i->metaMethod()->typeName() << " " << i->signature().constData() << std::endl;
+#endif
+            break;
+          }
+        }
+        i = i->nextInfo();
+        if (!i) {
+          if (strict) {
+            // one more run without being strict
+            strict = false;
+            i = info;
+          }
+        }
+      }
       if (!ok && !PyErr_Occurred()) {
-        QString e = QString("Called ") + info->fullSignature() + " with wrong arguments: " + PythonQtConv::PyObjGetString(args);
+        QString e = QString("Could not find matching overload for given arguments:\n" + PythonQtConv::PyObjGetString(args) + "\n The following slots are available:\n");
+        PythonQtSlotInfo* i = info;
+        while (i) {
+          e += QString(i->fullSignature()) + "\n";
+          i = i->nextInfo();
+        }
         PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
       }
     } else {
-      QString e = QString("Called ") + info->fullSignature() + " with wrong number of arguments: " + PythonQtConv::PyObjGetString(args);
-      PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
+      // simple (non-overloaded) slot call
+      bool skipFirst = info->isInstanceDecorator();
+      if (info->parameterCount()-1-(skipFirst?1:0) == arguments_size) {
+        PyErr_Clear();
+#ifdef PYTHONQT_DEBUG
+            std::cout << "called " << info->metaMethod()->typeName() << " " << info->signature().constData() << std::endl;
+#endif
+        ok = PythonQtCallSlot(classInfo, objectToCall, arguments, false, info, firstArg, &r, directReturnValuePointer, passThisOwnershipToCPP);
+        if (!ok && !PyErr_Occurred()) {
+          QString e = QString("Called ") + info->fullSignature() + " with wrong arguments: " + PythonQtConv::PyObjGetString(args);
+          PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
+        }
+      } else {
+        QString e = QString("Called ") + info->fullSignature() + " with wrong number of arguments: " + PythonQtConv::PyObjGetString(args);
+        PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
+      }
     }
+  }
+
+  if( 0 != combined_args) {
+    Py_DECREF(combined_args);
   }
 
   return r;
@@ -721,7 +785,7 @@ static PyObject*
 meth_richcompare(PythonQtSlotFunctionObject *a, PythonQtSlotFunctionObject *b, int op)
 {
   int x = meth_compare(a, b);
-  bool r;
+  bool r = false;
   if (op == Py_LT)
     r = x < 0;
   else if (op == Py_LE)
