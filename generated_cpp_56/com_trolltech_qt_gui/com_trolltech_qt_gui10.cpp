@@ -753,6 +753,25 @@ if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
 }
   
 }
+void PythonQtShell_QSyntaxHighlighter::rehighlightBlock(const QTextBlock& block0)
+{
+if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
+  static PyObject* name = PyString_FromString("rehighlightBlock");
+  PyObject* obj = PyBaseObject_Type.tp_getattro((PyObject*)_wrapper, name);
+  if (obj) {
+    static const char* argumentList[] ={"" , "const QTextBlock&"};
+    static const PythonQtMethodInfo* methodInfo = PythonQtMethodInfo::getCachedMethodInfoFromArgumentList(2, argumentList);
+    void* args[2] = {NULL, (void*)&block0};
+    PyObject* result = PythonQtSignalTarget::call(obj, methodInfo, args, true);
+    if (result) { Py_DECREF(result); }
+    Py_DECREF(obj);
+    return;
+  } else {
+    PyErr_Clear();
+  }
+}
+
+}
 void PythonQtShell_QSyntaxHighlighter::timerEvent(QTimerEvent*  arg__1)
 {
 if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
@@ -826,6 +845,11 @@ void PythonQtWrapper_QSyntaxHighlighter::highlightBlock(QSyntaxHighlighter* theW
 int  PythonQtWrapper_QSyntaxHighlighter::previousBlockState(QSyntaxHighlighter* theWrappedObject) const
 {
   return ( ((PythonQtPublicPromoter_QSyntaxHighlighter*)theWrappedObject)->promoted_previousBlockState());
+}
+
+void PythonQtWrapper_QSyntaxHighlighter::rehighlightBlock(QSyntaxHighlighter* theWrappedObject, const QTextBlock& block)
+{
+  ( ((PythonQtPublicPromoter_QSyntaxHighlighter*)theWrappedObject)->promoted_rehighlightBlock(block));
 }
 
 void PythonQtWrapper_QSyntaxHighlighter::setCurrentBlockState(QSyntaxHighlighter* theWrappedObject, int  newState)
