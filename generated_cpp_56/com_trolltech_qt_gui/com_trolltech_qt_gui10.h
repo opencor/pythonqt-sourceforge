@@ -252,6 +252,7 @@ virtual void customEvent(QEvent*  arg__1);
 virtual bool  event(QEvent*  arg__1);
 virtual bool  eventFilter(QObject*  arg__1, QEvent*  arg__2);
 virtual void highlightBlock(const QString&  text);
+virtual void rehighlightBlock(const QTextBlock& block);
 virtual void timerEvent(QTimerEvent*  arg__1);
 
   const QMetaObject* metaObject() const;
