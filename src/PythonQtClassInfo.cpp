@@ -1035,6 +1035,9 @@ PythonQtClassInfo* PythonQtClassInfo::getClassInfoForProperty( const QString& na
     }
   }
   if (!typeName.isEmpty()) {
+    if (typeName.endsWith("*")) {
+      typeName.truncate(typeName.length() - 1);
+    }
     PythonQtClassInfo* classInfo = PythonQt::priv()->getClassInfo(typeName);
     return classInfo;
   }
