@@ -238,6 +238,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
       }
     } else {
       result = NULL;
+      ok = false;
     }
   }
   recursiveEntry--;
@@ -259,7 +260,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
     // NOTE: a return value can not pass the ownership to CPP, it would not make sense...
   }
   // NOTE: it is important to only return here, otherwise the stack will not be popped!!!
-  return result || (directReturnValuePointer && *directReturnValuePointer);
+  return ok && (returnValueParam.typeId == QMetaType::Void || result || (directReturnValuePointer && *directReturnValuePointer));
 }
 
 //-----------------------------------------------------------------------------------
