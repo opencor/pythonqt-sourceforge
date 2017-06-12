@@ -80,9 +80,11 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   const QList<PythonQtSlotInfo::ParameterInfo>& params = info->parameters();
 
   const PythonQtSlotInfo::ParameterInfo& returnValueParam = params.at(0);
+  bool isVoidReturnValue = (returnValueParam.typeId == QMetaType::Void);
+
   // set return argument to NULL
   argList[0] = NULL;
-  
+
   bool ok = true;
   PythonQtPassThisOwnershipType passThisOwnership = IgnoreOwnership;
 
@@ -136,7 +138,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
     }
 
     // parameters are ok, now create the qt return value which is assigned to by metacall
-    if (returnValueParam.typeId != QMetaType::Void) {
+    if (!isVoidReturnValue) {
       // create empty default value for the return value
       if (!directReturnValuePointer) {
         // create empty default value for the return value
@@ -215,14 +217,14 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
 #endif
       }
     }
-  
+
     if (profilingCB) {
       profilingCB(PythonQt::Leave, NULL, NULL, NULL);
     }
 
     // handle the return value (which in most cases still needs to be converted to a Python object)
     if (!hadException) {
-      if (argList[0] || returnValueParam.typeId == QMetaType::Void) {
+      if (argList[0] || isVoidReturnValue) {
         if (directReturnValuePointer) {
           result = NULL;
         } else {
@@ -235,6 +237,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
         QString e = QString("Called ") + info->fullSignature() + ", return type '" + returnValueParam.name + "' is ignored because it is unknown to PythonQt. Probably you should register it using qRegisterMetaType() or add a default constructor decorator to the class.";
         PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
         result = NULL;
+        ok = false;
       }
     } else {
       result = NULL;
@@ -249,7 +252,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   PythonQtConv::global_variantStorage.setPos(globalVariantStoragePos);
 
   *pythonReturnValue = result;
-  
+
   if (result && returnValueParam.passOwnershipToPython) {
     // if the ownership should be passed to PythonQt, it has to be a PythonQtInstanceWrapper,
     // cast it and pass the ownership
@@ -259,8 +262,11 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
     }
     // NOTE: a return value can not pass the ownership to CPP, it would not make sense...
   }
+  // Either we have a
+  // a) a result value
+  // b) a directReturnValuePointer and it has a value or the return value is void
   // NOTE: it is important to only return here, otherwise the stack will not be popped!!!
-  return ok && (returnValueParam.typeId == QMetaType::Void || result || (directReturnValuePointer && *directReturnValuePointer));
+  return ok && (result || (directReturnValuePointer && (*directReturnValuePointer || isVoidReturnValue)));
 }
 
 //-----------------------------------------------------------------------------------
