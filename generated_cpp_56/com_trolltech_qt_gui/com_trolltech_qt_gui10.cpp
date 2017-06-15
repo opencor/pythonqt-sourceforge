@@ -791,9 +791,6 @@ if (_wrapper && (((PyObject*)_wrapper)->ob_refcnt > 0)) {
 }
   QSyntaxHighlighter::timerEvent(arg__1);
 }
-QSyntaxHighlighter* PythonQtWrapper_QSyntaxHighlighter::new_QSyntaxHighlighter(QObject*  parent)
-{ 
-return new PythonQtShell_QSyntaxHighlighter(parent); }
 
 QSyntaxHighlighter* PythonQtWrapper_QSyntaxHighlighter::new_QSyntaxHighlighter(QTextDocument*  parent)
 { 

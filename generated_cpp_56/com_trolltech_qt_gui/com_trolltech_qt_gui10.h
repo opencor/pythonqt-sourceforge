@@ -242,7 +242,6 @@ void delete_QSwipeGesture(QSwipeGesture* obj) { delete obj; }
 class PythonQtShell_QSyntaxHighlighter : public QSyntaxHighlighter
 {
 public:
-    PythonQtShell_QSyntaxHighlighter(QObject*  parent):QSyntaxHighlighter(parent),_wrapper(NULL) {};
     PythonQtShell_QSyntaxHighlighter(QTextDocument*  parent):QSyntaxHighlighter(parent),_wrapper(NULL) {};
 
    ~PythonQtShell_QSyntaxHighlighter();
@@ -282,7 +281,6 @@ class PythonQtWrapper_QSyntaxHighlighter : public QObject
 { Q_OBJECT
 public:
 public slots:
-QSyntaxHighlighter* new_QSyntaxHighlighter(QObject*  parent);
 QSyntaxHighlighter* new_QSyntaxHighlighter(QTextDocument*  parent);
 void delete_QSyntaxHighlighter(QSyntaxHighlighter* obj) { delete obj; } 
    QTextBlock  currentBlock(QSyntaxHighlighter* theWrappedObject) const;
