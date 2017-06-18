@@ -175,6 +175,10 @@ void delete_QColor(QColor* obj) { delete obj; }
    QColor  static_QColor_fromRgba64(ushort  r, ushort  g, ushort  b, ushort  a = USHRT_MAX);
    void getHsl(QColor* theWrappedObject, int*  h, int*  s, int*  l, int*  a = NULL) const;
    void getHslF(QColor* theWrappedObject, qreal*  h, qreal*  s, qreal*  l, qreal*  a = NULL) const;
+   void getHsv(QColor* theWrappedObject, int*  h, int*  s, int*  v, int*  a = NULL) const;
+   void getHsvF(QColor* theWrappedObject, qreal*  h, qreal*  s, qreal*  v, qreal*  a = NULL) const;
+   void getRgb(QColor* theWrappedObject, int*  r, int*  g, int*  b, int*  a = NULL) const;
+   void getRgbF(QColor* theWrappedObject, qreal*  r, qreal*  g, qreal*  b, qreal*  a = NULL) const;
    int  green(QColor* theWrappedObject) const;
    qreal  greenF(QColor* theWrappedObject) const;
    int  hslHue(QColor* theWrappedObject) const;

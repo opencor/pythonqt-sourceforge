@@ -487,6 +487,26 @@ void PythonQtWrapper_QColor::getHslF(QColor* theWrappedObject, qreal*  h, qreal*
   ( theWrappedObject->getHslF(h, s, l, a));
 }
 
+void PythonQtWrapper_QColor::getHsv(QColor* theWrappedObject, int*  h, int*  s, int*  v, int*  a) const
+{
+  ( theWrappedObject->getHsv(h, s, v, a));
+}
+
+void PythonQtWrapper_QColor::getHsvF(QColor* theWrappedObject, qreal*  h, qreal*  s, qreal*  v, qreal*  a) const
+{
+  ( theWrappedObject->getHsvF(h, s, v, a));
+}
+
+void PythonQtWrapper_QColor::getRgb(QColor* theWrappedObject, int*  r, int*  g, int*  b, int*  a) const
+{
+  ( theWrappedObject->getRgb(r, g, b, a));
+}
+
+void PythonQtWrapper_QColor::getRgbF(QColor* theWrappedObject, qreal*  r, qreal*  g, qreal*  b, qreal*  a) const
+{
+  ( theWrappedObject->getRgbF(r, g, b, a));
+}
+
 int  PythonQtWrapper_QColor::green(QColor* theWrappedObject) const
 {
   return ( theWrappedObject->green());
