@@ -154,6 +154,14 @@ void PythonQtTestSlotCalling::testOverloadedCall()
   QVERIFY(_helper->runScript("obj.overload(12,13); obj.setPassed();\n", 6));
 }
 
+
+void PythonQtTestSlotCalling::testKeywordCall()
+{
+  QVERIFY(_helper->runScript("if obj.keywordInt(5,value=6)==11: obj.setPassed();\n"));
+  QVERIFY(_helper->runScript("if obj.keywordOnly(value=6)==1: obj.setPassed();\n"));
+  QVERIFY(_helper->runScript("if obj.keywordOnly(arg1='test1',arg2='test2')==2: obj.setPassed();\n"));
+}
+
 void PythonQtTestSlotCalling::testPyObjectSlotCall()
 {
   QVERIFY(_helper->runScript("if obj.getPyObject(PythonQt)==PythonQt: obj.setPassed();\n"));
@@ -270,16 +278,16 @@ void PythonQtTestSlotCalling::testCppFactory()
     ));
 
   QVERIFY(_helper->runScript("if obj.createPQCppObjectNoWrap(12).getH()==12: obj.setPassed();\n"));
-  
+
   QVERIFY(_helper->runScript("if obj.getPQCppObjectNoWrapAsValue().getH()==47: obj.setPassed();\n"));
-  
+
   qRegisterMetaType<PQUnknownButRegisteredValueObject>("PQUnknownButRegisteredValueObject");
   QVERIFY(_helper->runScript("a = obj.getUnknownButRegisteredValueObjectAsPtr();print(a);\nif a!=None: obj.setPassed();\n"));
   QVERIFY(_helper->runScript("a = obj.getUnknownButRegisteredValueObjectAsValue();print(a);\nif a!=None: obj.setPassed();\n"));
   QVERIFY(_helper->runScript("a = obj.getUnknownValueObjectAsPtr();print(a);\nif a!=None: obj.setPassed();\n"));
   QEXPECT_FAIL("", "Testing by value return without the object being registered as QMetaType or having registered a default constructor decorator", Continue);
   QVERIFY(_helper->runScript("a = obj.getUnknownValueObjectAsValue();print(a);\nif a!=None: obj.setPassed();\n"));
-  
+
   // expect to get strict call to double overload
   QVERIFY(_helper->runScript("obj.testNoArg()\nfrom PythonQt.private import PQCppObjectNoWrap\na = PQCppObjectNoWrap(22.2)\nif a.getH()==2: obj.setPassed();\n"));
   // expect to get un-strict call to double overload
@@ -290,7 +298,7 @@ void PythonQtTestSlotCalling::testCppFactory()
   // test decorated enums
   // already registered by signals test
   //PythonQt::self()->registerCPPClass("PQCppObject2",NULL,NULL, PythonQtCreateObject<PQCppObject2Decorator>);
-  
+
   // local enum (decorated)
   QVERIFY(_helper->runScript("obj.testNoArg()\nfrom PythonQt.private import PQCppObject2\na = PQCppObject2()\nprint(a.testEnumFlag1)\nif a.testEnumFlag1(PQCppObject2.TestEnumValue2)==PQCppObject2.TestEnumValue2: obj.setPassed();\n"));
   // enum with namespace (decorated)
@@ -311,38 +319,19 @@ void PythonQtTestSlotCalling::testCppFactory()
 
 }
 
-// PQCppObject2Decorator
-
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag1(PQCppObject2* obj, PQCppObject2Decorator::TestEnumFlag flag) {
-  Q_UNUSED(obj);
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag1(PQCppObject2* /*obj*/, PQCppObject2Decorator::TestEnumFlag flag) {
   return flag;
 }
 
-PQCppObject2::TestEnumFlag PQCppObject2Decorator::testEnumFlag2(PQCppObject2* obj, PQCppObject2::TestEnumFlag flag) {
-  Q_UNUSED(obj);
+PQCppObject2::TestEnumFlag PQCppObject2Decorator::testEnumFlag2(PQCppObject2* /*obj*/, PQCppObject2::TestEnumFlag flag) {
   return flag;
 }
 
 // with int overload
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* obj, int flag) {
-  Q_UNUSED(obj);
-  Q_UNUSED(flag);
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* /*obj*/, int /*flag*/) {
   return (TestEnumFlag)-1;
 }
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* obj, PQCppObject2Decorator::TestEnumFlag flag) {
-  Q_UNUSED(obj);
-  return flag;
-}
-
-// PQCppObjectQFlagOnlyDecorator
-
-PQCppObjectQFlagOnlyDecorator::TestEnumFlag PQCppObjectQFlagOnlyDecorator::testEnumFlag1(PQCppObjectQFlagOnly* obj, PQCppObjectQFlagOnlyDecorator::TestEnumFlag flag) {
-  Q_UNUSED(obj);
-  return flag;
-}
-
-PQCppObjectQFlagOnly::TestEnumFlag PQCppObjectQFlagOnlyDecorator::testEnumFlag2(PQCppObjectQFlagOnly* obj, PQCppObjectQFlagOnly::TestEnumFlag flag) {
-  Q_UNUSED(obj);
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* /*obj*/, PQCppObject2Decorator::TestEnumFlag flag) {
   return flag;
 }
 
@@ -412,7 +401,7 @@ void PythonQtTestSignalHandler::testSignalHandler()
   PyRun_SimpleString("def testEnumSignal(a):\n  if a==1: obj.setPassed();\n");
   QVERIFY(PythonQt::self()->addSignalHandler(_helper, SIGNAL(enumSignal(PQCppObject2::TestEnumFlag)), main, "testEnumSignal"));
   QVERIFY(_helper->emitEnumSignal(PQCppObject2::TestEnumValue2));
-  
+
   PyRun_SimpleString("def testVariantSignal(a):\n  if a==obj.expectedVariant(): obj.setPassed();\n");
   QVERIFY(PythonQt::self()->addSignalHandler(_helper, SIGNAL(variantSignal(QVariant)), main, "testVariantSignal"));
   _helper->setExpectedVariant(QString("Test"));
@@ -482,7 +471,7 @@ void PythonQtTestApi::testDynamicProperties()
 
   // this fails and should fail, but how could that be tested?
   // main.evalScript("obj.testProp = 1");
-  
+
   // create a new dynamic property
   main.evalScript("obj.setProperty('testProp','testValue')");
 
@@ -498,7 +487,7 @@ void PythonQtTestApi::testDynamicProperties()
   // check if dynamic property is in introspection
   QStringList l = PythonQt::self()->introspection(PythonQt::self()->getMainModule(), "obj", PythonQt::Anything);
   QVERIFY(l.contains("testProp"));
-  
+
   // check with None, previous value expected
   main.evalScript("obj.testProp = None");
   QVERIFY(12 == main.getVariable("obj.testProp").toInt());
@@ -509,7 +498,7 @@ void PythonQtTestApi::testDynamicProperties()
   // check if dynamic property is really gone
   QStringList l2 = PythonQt::self()->introspection(PythonQt::self()->getMainModule(), "obj", PythonQt::Anything);
   QVERIFY(!l2.contains("testProp"));
-  
+
 }
 
 
@@ -626,14 +615,14 @@ void PythonQtTestApi::testQColorDecorators()
   QVERIFY(colorClass.call("red", QVariantList() << QColor(255,0,0)).toInt() == 255);
 }
 
-QByteArray PythonQtTestApiHelper::readFileAsBytes(const QString& filename)
+QByteArray PythonQtTestApiHelper::readFileAsBytes(const QString& /*filename*/)
 {
   Q_UNUSED(filename);
   QByteArray b;
   return b;
 }
 
-QByteArray PythonQtTestApiHelper::readSourceFile(const QString& filename, bool& ok)
+QByteArray PythonQtTestApiHelper::readSourceFile(const QString& /*filename*/, bool& ok)
 {
   Q_UNUSED(filename);
   QByteArray b;
@@ -641,14 +630,13 @@ QByteArray PythonQtTestApiHelper::readSourceFile(const QString& filename, bool& 
   return b;
 }
 
-bool PythonQtTestApiHelper::exists(const QString& filename)
+bool PythonQtTestApiHelper::exists(const QString& /*filename*/)
 {
   Q_UNUSED(filename);
   return true;
 }
 
-QDateTime PythonQtTestApiHelper::lastModifiedDate(const QString& filename) {
-  Q_UNUSED(filename);
+QDateTime PythonQtTestApiHelper::lastModifiedDate(const QString& /*filename*/) {
   return QDateTime::currentDateTime();
 }
 
