@@ -207,7 +207,7 @@ int PythonQtInstanceWrapper_init(PythonQtInstanceWrapper * self, PyObject * args
     }
   } else {
     QString error = QString("No constructors available for ") + self->classInfo()->className();
-    PyErr_SetString(PyExc_ValueError, error.toLatin1().data());
+    PyErr_SetString(PyExc_ValueError, QStringToPythonConstCharPointer(error));
     return -1;
   }
   return 0;
@@ -392,12 +392,12 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
       // we need to replace the properties with their real values...
       QStringList l = wrapper->classInfo()->propertyList();
       Q_FOREACH (QString name, l) {
-        PyObject* o = PyObject_GetAttrString(obj, name.toLatin1().data());
+        PyObject* o = PyObject_GetAttrString(obj, QStringToPythonConstCharPointer(name));
         if (o) {
-          PyDict_SetItemString(dict, name.toLatin1().data(), o);
+          PyDict_SetItemString(dict, QStringToPythonConstCharPointer(name), o);
           Py_DECREF(o);
         } else {
-          std::cerr << "PythonQtInstanceWrapper: something is wrong, could not get attribute " << name.toLatin1().data();
+          std::cerr << "PythonQtInstanceWrapper: something is wrong, could not get attribute " << QStringToPythonConstCharPointer(name) << std::endl;
         }
       }
 
@@ -490,7 +490,7 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
           QString methodName = "getProperty('";
           methodName += attributeName;
           methodName += "')";
-          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1(), NULL);
+          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), QStringToPythonConstCharPointer(methodName), NULL);
         }
 
         PyObject* value = PythonQtConv::QVariantToPyObject(member._property.read(wrapper->_obj));
@@ -507,7 +507,7 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
       }
     } else {
       QString error = QString("Trying to read property '") + attributeName + "' from a destroyed " + wrapper->classInfo()->className() + " object";
-      PyErr_SetString(PyExc_ValueError, error.toLatin1().data());
+      PyErr_SetString(PyExc_ValueError, QStringToPythonConstCharPointer(error));
       return NULL;
     }
     break;
@@ -598,7 +598,7 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
   }
 
   QString error = QString(wrapper->classInfo()->className()) + " has no attribute named '" + QString(attributeName) + "'";
-  PyErr_SetString(PyExc_AttributeError, error.toLatin1().data());
+  PyErr_SetString(PyExc_AttributeError, QStringToPythonConstCharPointer(error));
   return NULL;
 }
 
@@ -616,7 +616,7 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
 
     if (!wrapper->_obj) {
       error = QString("Trying to set property '") + attributeName + "' on a destroyed " + wrapper->classInfo()->className() + " object";
-      PyErr_SetString(PyExc_AttributeError, error.toLatin1().data());
+      PyErr_SetString(PyExc_AttributeError, QStringToPythonConstCharPointer(error));
       return -1;
     }
 
@@ -637,7 +637,7 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
           QString methodName = "setProperty('";
           methodName += attributeName;
           methodName += "')";
-          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1(), NULL);
+          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), QStringToPythonConstCharPointer(methodName), NULL);
         }
 
         success = prop.write(wrapper->_obj, v);
@@ -693,7 +693,7 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
         } else {
           error = QString("Dynamic property '") + attributeName + "' does not accept an object of type "
           + QString(value->ob_type->tp_name) + " (" + PythonQtConv::PyObjGetRepresentation(value) + ")";
-          PyErr_SetString(PyExc_AttributeError, error.toLatin1().data());
+          PyErr_SetString(PyExc_AttributeError, QStringToPythonConstCharPointer(error));
           return -1;
         }
       }
@@ -726,7 +726,7 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
     }
   }
 
-  PyErr_SetString(PyExc_AttributeError, error.toLatin1().data());
+  PyErr_SetString(PyExc_AttributeError, QStringToPythonConstCharPointer(error));
   return -1;
 }
 
@@ -766,7 +766,10 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
     // Since in Python 3 str() will return a unicode, this is no longer possible.
     // The user needs to call .data() to get access to the data as bytes.
     if (b->data()) {
-      return PyUnicode_FromStringAndSize(b->data(), b->size());
+      PyObject* buffer = PyBytes_FromStringAndSize(b->data(), b->size());
+      PyObject* result = PyObject_Repr(buffer);
+      Py_DECREF(buffer);
+      return result;
     } else {
       return PyUnicode_New(0, 0);
     }
@@ -783,7 +786,7 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   QObject *qobj = wrapper->_obj;
   QString str = getStringFromObject(wrapper);
   if (!str.isEmpty()) {
-    return PyString_FromFormat("%s", str.toLatin1().constData());
+    return PyString_FromFormat("%s", QStringToPythonConstCharPointer(str));
   }
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
@@ -805,9 +808,9 @@ static PyObject * PythonQtInstanceWrapper_repr(PyObject * obj)
   QString str = getStringFromObject(wrapper);
   if (!str.isEmpty()) {
     if (str.startsWith(typeName)) {
-      return PyString_FromFormat("%s", str.toLatin1().constData());
+      return PyString_FromFormat("%s", QStringToPythonConstCharPointer(str));
     } else {
-      return PyString_FromFormat("%s (%s, at: %p)", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
+      return PyString_FromFormat("%s (%s, at: %p)", typeName, QStringToPythonConstCharPointer(str), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
     }
   }
   if (wrapper->_wrappedPtr) {
@@ -831,10 +834,10 @@ static int PythonQtInstanceWrapper_builtin_nonzero(PyObject *obj)
 static long PythonQtInstanceWrapper_hash(PythonQtInstanceWrapper *obj)
 {
   if (obj->_wrappedPtr != NULL) {
-    return reinterpret_cast<long>(obj->_wrappedPtr);
+    return static_cast<long>(reinterpret_cast<size_t>(obj->_wrappedPtr));
   } else {
     QObject* qobj = obj->_obj; // get pointer from QPointer wrapper
-    return reinterpret_cast<long>(qobj);
+    return static_cast<long>(reinterpret_cast<size_t>(qobj));
   }
 }
 

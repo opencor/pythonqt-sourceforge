@@ -42,6 +42,7 @@
  */
 //----------------------------------------------------------------------------------
 
+#include "PythonQtPythonInclude.h"
 #include <PythonQtImportFileInterface.h>
 
 //! default importer implementation using QFile to load python code
@@ -55,6 +56,7 @@ public:
     QByteArray readSourceFile (const QString &filename, bool &ok);
     
     bool exists (const QString &filename);
+    bool isEggArchive(const QString& filename);
     
     QDateTime lastModifiedDate (const QString &filename);
 

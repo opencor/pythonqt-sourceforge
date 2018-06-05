@@ -46,10 +46,14 @@
 
 #include <QCoreApplication>
 
-bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, PyObject* callable)
+bool PythonQtStdDecorators::connect(QObject* sender, const QByteArray& signal, PyObject* callable)
 {
+  if (signal.size() == 0) {
+    std::cerr << "PythonQt: QObject::disconnect() signal is empty." << std::endl;
+    return false;
+  }
   bool result = false;
-  QByteArray signalTmp = signal.toLatin1();
+  QByteArray signalTmp = signal;
   char first = signalTmp.at(0);
   if (first<'0' || first>'9') {
     signalTmp = "2" + signalTmp;
@@ -59,24 +63,32 @@ bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, PyOb
     result = PythonQt::self()->addSignalHandler(sender, signalTmp, callable);
     if (!result) {
       if (sender->metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalTmp.constData()+1)) == -1) {
-        qWarning("PythonQt: QObject::connect() signal '%s' does not exist on %s", signal.toLatin1().constData(), sender->metaObject()->className());
+        std::cerr << "PythonQt: QObject::connect() signal '" << signal.constData() << "' does not exist on " << sender->metaObject()->className() << std::endl;
       }
     }
   }
   return result;
 }
 
-bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot, Qt::ConnectionType type)
+bool PythonQtStdDecorators::connect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot, Qt::ConnectionType type)
 {
+  if (signal.size() == 0) {
+    std::cerr << "PythonQt: QObject::connect() signal is empty." << std::endl;
+    return false;
+  }
+  if (slot.size() == 0) {
+    std::cerr << "PythonQt: QObject::connect() slot is empty." << std::endl;
+    return false;
+  }
   bool r = false;
   if (sender && receiver) {
-    QByteArray signalTmp = signal.toLatin1();
+    QByteArray signalTmp = signal;
     char first = signalTmp.at(0);
     if (first<'0' || first>'9') {
       signalTmp = "2" + signalTmp;
     }
 
-    QByteArray slotTmp = slot.toLatin1();
+    QByteArray slotTmp = slot;
     first = slotTmp.at(0);
     if (first<'0' || first>'9') {
       slotTmp = "1" + slotTmp;
@@ -86,10 +98,15 @@ bool PythonQtStdDecorators::connect(QObject* sender, const QString& signal, QObj
   return r;
 }
 
-bool PythonQtStdDecorators::disconnect(QObject* sender, const QString& signal, PyObject* callable)
+bool PythonQtStdDecorators::disconnect(QObject* sender, const QByteArray& signal, PyObject* callable)
 {
+  if (signal.size() == 0) {
+    std::cerr << "PythonQt: QObject::disconnect() signal is empty." << std::endl;
+    return false;
+  }
+
   bool result = false;
-  QByteArray signalTmp = signal.toLatin1();
+  QByteArray signalTmp = signal;
   char first = signalTmp.at(0);
   if (first<'0' || first>'9') {
     signalTmp = "2" + signalTmp;
@@ -101,24 +118,32 @@ bool PythonQtStdDecorators::disconnect(QObject* sender, const QString& signal, P
     }
     if (!result) {
       if (sender->metaObject()->indexOfSignal(QMetaObject::normalizedSignature(signalTmp.constData()+1)) == -1) {
-        qWarning("PythonQt: QObject::disconnect() signal '%s' does not exist on %s", signal.toLatin1().constData(), sender->metaObject()->className());
+        std::cerr << "PythonQt: QObject::disconnect() signal '" << signal.constData() << "' does not exist on " << sender->metaObject()->className() << std::endl;
       }
     }
   }
   return result;
 }
 
-bool PythonQtStdDecorators::disconnect(QObject* sender, const QString& signal, QObject* receiver, const QString& slot)
+bool PythonQtStdDecorators::disconnect(QObject* sender, const QByteArray& signal, QObject* receiver, const QByteArray& slot)
 {
   bool r = false;
+  if (signal.size() == 0) {
+    std::cerr << "PythonQt: QObject::disconnect() signal is empty." << std::endl;
+    return false;
+  }
+  if (slot.size() == 0) {
+    std::cerr << "PythonQt: QObject::disconnect() slot is empty." << std::endl;
+    return false;
+  }
   if (sender && receiver) {
-    QByteArray signalTmp = signal.toLatin1();
+    QByteArray signalTmp = signal;
     char first = signalTmp.at(0);
     if (first<'0' || first>'9') {
       signalTmp = "2" + signalTmp;
     }
 
-    QByteArray slotTmp = slot.toLatin1();
+    QByteArray slotTmp = slot;
     first = slotTmp.at(0);
     if (first<'0' || first>'9') {
       slotTmp = "1" + slotTmp;
