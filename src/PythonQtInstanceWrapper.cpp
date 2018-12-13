@@ -77,7 +77,7 @@ static void PythonQtInstanceWrapper_deleteObject(PythonQtInstanceWrapper* self, 
           void* args[2];
           args[0] = NULL;
           args[1] = &self->_wrappedPtr;
-          slot->decorator()->qt_metacall(QMetaObject::InvokeMetaMethod, slot->slotIndex(), args);
+          PythonQtSlotInfo::invokeQtMethod(slot->decorator(), slot, args);
           self->_wrappedPtr = NULL;
         } else {
           if (type>=0) {
@@ -596,7 +596,11 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
   }
 
   QString error = QString(wrapper->classInfo()->className()) + " has no attribute named '" + QString(attributeName) + "'";
+  if (wrapper->_obj) {
+    error += PythonQt::self()->qObjectMissingAttributeCallback(wrapper->_obj, QString(attributeName));
+  }
   PyErr_SetString(PyExc_AttributeError, QStringToPythonConstCharPointer(error));
+
   return NULL;
 }
 

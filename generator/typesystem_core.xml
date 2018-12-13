@@ -644,7 +644,6 @@
   <enum-type name="QElapsedTimer::ClockType"/>
   
   <enum-type name="QtMsgType">
-    <reject-enum-value name="QtSystemMsg"/>
   </enum-type>
 
 
@@ -661,8 +660,6 @@
   <enum-type name="QDataStream::Status"/>
   <enum-type name="QDir::Filter" flags="QDir::Filters"/>
   <enum-type name="QEvent::Type" extensible="yes">
-    <reject-enum-value name="ApplicationActivated"/>
-    <reject-enum-value name="ApplicationDeactivated"/>
   </enum-type>
   <enum-type name="QEventLoop::ProcessEventsFlag" flags="QEventLoop::ProcessEventsFlags"/>
   <enum-type name="QFile::FileError"/>
@@ -758,7 +755,10 @@
   <enum-type name="Qt::WhiteSpaceMode"/>
   <enum-type name="Qt::WindowModality"/>
   <enum-type name="Qt::WindowState" flags="Qt::WindowStates"/>
-  <enum-type name="Qt::WindowType" flags="Qt::WindowFlags"/>
+  <enum-type name="Qt::WindowType" flags="Qt::WindowFlags">
+    <reject-enum-value name="WindowOkButtonHint"/>
+    <reject-enum-value name="WindowCancelButtonHint"/>
+  </enum-type>
   <enum-type name="QDirIterator::IteratorFlag" flags="QDirIterator::IteratorFlags"/>
   <enum-type name="Qt::EventPriority"/>
   <enum-type name="Qt::MaskMode"/>
@@ -769,65 +769,44 @@
  
 
   <enum-type name="QCoreApplication::Encoding">
-    <reject-enum-value name="DefaultCodec"/>
   </enum-type>
 
   <enum-type name="Qt::AlignmentFlag" flags="Qt::Alignment">
-    <reject-enum-value name="AlignLeading"/>
-    <reject-enum-value name="AlignTrailing"/>
   </enum-type>
 
   <enum-type name="Qt::CursorShape">
-    <reject-enum-value name="LastCursor"/>
   </enum-type>
 
   <enum-type name="Qt::DateFormat">
-    <reject-enum-value name="LocalDate"/>
   </enum-type>
 
 
   <enum-type name="Qt::ItemDataRole" force-integer="yes">
-    <reject-enum-value name="BackgroundColorRole"/>
-    <reject-enum-value name="TextColorRole"/>
   </enum-type>
 
 
   <enum-type name="QDataStream::Version">
-    <reject-enum-value name="Qt_4_1"/>
   </enum-type>
 
   <enum-type name="QDir::SortFlag" flags="QDir::SortFlags">
-    <reject-enum-value name="Unsorted"/>
   </enum-type>
 
   <enum-type name="Qt::DockWidgetArea" flags="Qt::DockWidgetAreas">
-    <reject-enum-value name="AllDockWidgetAreas"/>
   </enum-type>
 
   <enum-type name="Qt::ImageConversionFlag" flags="Qt::ImageConversionFlags">
-    <reject-enum-value name="AutoDither"/>
-    <reject-enum-value name="ColorOnly"/>
-    <reject-enum-value name="DiffuseDither"/>
-    <reject-enum-value name="NoAlpha"/>
-    <reject-enum-value name="ThresholdAlphaDither"/>
   </enum-type>
 
   <enum-type name="Qt::Key">
-    <reject-enum-value name="Key_Any"/>
   </enum-type>
 
   <enum-type name="QLocale::Language">
-    <reject-enum-value name="LastLanguage"/>
-    <reject-enum-value name="NorwegianBokmal"/>
-    <reject-enum-value name="Nynorsk"/>
   </enum-type>
 
   <enum-type name="QLocale::Country">
-    <reject-enum-value name="LastCountry"/>
   </enum-type>
 
   <enum-type name="Qt::ToolBarArea" flags="Qt::ToolBarAreas">
-    <reject-enum-value name="AllToolBarAreas"/>
   </enum-type>
 
   <enum-type name="Qt::EnterKeyType"/>
@@ -835,9 +814,6 @@
   <enum-type name="Qt::TabFocusBehavior"/>
 
   <enum-type name="Qt::WidgetAttribute">
-    <reject-enum-value name="WA_ForceAcceptDrops"/>
-    <reject-enum-value name="WA_NoBackground"/>
-    <reject-enum-value name="WA_MacMetalStyle"/>
   </enum-type>
 
   <value-type name="QProcessEnvironment"/>
@@ -1969,4 +1945,17 @@
   <enum-type name="Qt::TimerType"/>
   <enum-type name="Qt::Edge"/>
 
+  <object-type name="QDeadlineTimer"/>
+  <object-type name="QOperatingSystemVersion"/>
+  <enum-type name="QOperatingSystemVersion::OSType"/>
+  <object-type name="QRandomGenerator"/>
+  <object-type name="QRandomGenerator64"/>
+  <enum-type name="QDeadlineTimer::ForeverConstant"/>
+  
+  <enum-type name="QCommandLineOption::Flag"/>
+  <enum-type name="QFileDevice::FileTime"/>
+  <enum-type name="QLocale::DataSizeFormat"/>
+  <enum-type name="QLocale::FloatingPointPrecisionOption"/>
+  <enum-type name="QUuid::StringFormat"/>
+  <enum-type name="Qt::ChecksumType"/>
   </typesystem>

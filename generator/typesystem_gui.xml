@@ -318,7 +318,6 @@
   <enum-type name="QPainter::RenderHint" flags="QPainter::RenderHints"/>
   <enum-type name="QPainterPath::ElementType"/>
   <enum-type name="QPrintEngine::PrintEnginePropertyKey">
-    <reject-enum-value name="PPK_PaperSize"/>
   </enum-type>
   <enum-type name="QPrinter::ColorMode"/>
   <enum-type name="QPrinter::Orientation"/>
@@ -343,17 +342,12 @@
   <enum-type name="QStyle::ContentsType" extensible="yes"/>
   <enum-type name="QStyle::ControlElement" extensible="yes"/>
   <enum-type name="QStyle::PixelMetric" extensible="yes">
-    <reject-enum-value name="PM_MDIFrameWidth"/>
-    <reject-enum-value name="PM_MDIMinimizedWidth"/>
   </enum-type>
   <enum-type name="QStyle::PrimitiveElement" extensible="yes">
-    <reject-enum-value name="PE_IndicatorItemViewItemCheck"/>
-    <reject-enum-value name="PE_FrameStatusBarItem"/>
   </enum-type>
   <enum-type name="QStyle::StandardPixmap" extensible="yes"/>
   <enum-type name="QStyle::StateFlag" flags="QStyle::State"/>
   <enum-type name="QStyle::SubElement" extensible="yes">
-    <reject-enum-value name="SE_ItemViewItemCheckIndicator"/>
   </enum-type>
   <enum-type name="QStyleHintReturn::HintReturnType"/>
   <enum-type name="QStyleHintReturn::StyleOptionType"/>
@@ -430,7 +424,6 @@
   <enum-type name="QStyleOptionToolButton::StyleOptionType"/>
   <enum-type name="QStyleOptionToolButton::StyleOptionVersion"/>
   <enum-type name="QStyleOptionToolButton::ToolButtonFeature" flags="QStyleOptionToolButton::ToolButtonFeatures">
-    <reject-enum-value name="MenuButtonPopup"/>
   </enum-type>
   <enum-type name="QStyleOptionViewItem::Position"/>
   <enum-type name="QStyleOptionViewItem::StyleOptionType"/>
@@ -501,92 +494,55 @@
 <enum-type name="QPlatformSurfaceEvent::SurfaceEventType"/>
 
   <enum-type name="QWizard::WizardButton">
-    <reject-enum-value name="NStandardButtons"/>
-    <reject-enum-value name="NButtons"/>
   </enum-type>
 
   <enum-type name="QAccessible::Action">
-    <reject-enum-value name="FirstStandardAction"/>
-    <reject-enum-value name="LastStandardAction"/>
   </enum-type>
 
   <enum-type name="QBoxLayout::Direction">
-    <reject-enum-value name="Down"/>
-    <reject-enum-value name="Up"/>
   </enum-type>
 
 
   <enum-type name="QClipboard::Mode">
-    <reject-enum-value name="LastMode"/>
   </enum-type>
 
   <enum-type name="QDialogButtonBox::StandardButton" flags="QDialogButtonBox::StandardButtons">
-    <reject-enum-value name="FirstButton"/>
-    <reject-enum-value name="LastButton"/>
-    <reject-enum-value name="YesAll"/>
-    <reject-enum-value name="NoAll"/>
-    <reject-enum-value name="Default"/>
-    <reject-enum-value name="Escape"/>
-    <reject-enum-value name="FlagMask"/>
-    <reject-enum-value name="ButtonMask"/>
   </enum-type>
 
   <enum-type name="QDockWidget::DockWidgetFeature" flags="QDockWidget::DockWidgetFeatures"/>
 
   <enum-type name="QFont::StyleHint">
-    <reject-enum-value name="SansSerif"/>
-    <reject-enum-value name="Serif"/>
-    <reject-enum-value name="TypeWriter"/>
-    <reject-enum-value name="Decorative"/>
   </enum-type>
 
   <enum-type name="QFontDatabase::WritingSystem">
-    <reject-enum-value name="Other"/>
   </enum-type>
 
   <enum-type name="QHeaderView::ResizeMode">
-    <reject-enum-value name="Custom"/>
   </enum-type>
 
 
   <enum-type name="QMessageBox::StandardButton" flags="QMessageBox::StandardButtons">
-    <reject-enum-value name="FirstButton"/>
-    <reject-enum-value name="LastButton"/>
-    <reject-enum-value name="YesAll"/>
-    <reject-enum-value name="NoAll"/>
   </enum-type>
 
   <enum-type name="QPalette::ColorGroup">
-    <reject-enum-value name="Normal"/>
   </enum-type>
 
   <enum-type name="QPalette::ColorRole">
-    <reject-enum-value name="NColorRoles"/>
-    <reject-enum-value name="Foreground"/>
-    <reject-enum-value name="Background"/>
   </enum-type>
 
   <enum-type name="QPrinter::PageSize">
-    <reject-enum-value name="NPageSize"/>
-    <reject-enum-value name="NPaperSize"/>
   </enum-type>
 
   <enum-type name="QSlider::TickPosition">
-    <reject-enum-value name="TicksLeft"/>
-    <reject-enum-value name="TicksRight"/>
   </enum-type>
 
   <enum-type name="QStyle::StyleHint" extensible="yes">
-    <reject-enum-value name="SH_ScrollBar_StopMouseOverSlider"/>
   </enum-type>
 
 
   <enum-type name="QTextFormat::FormatType"/>
 
   <enum-type name="QTextFormat::Property">
-    <reject-enum-value name="FontSizeIncrement"/>
-    <reject-enum-value name="FirstFontProperty"/>
-    <reject-enum-value name="LastFontProperty"/>
   </enum-type>
 
  <enum-type name="QAction::Priority"/>
@@ -1230,15 +1186,11 @@ PyObject* constScanLine(QImage* image, int line) {
       <modify-function signature="setHorizontalStepsPerItem(int)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="setVerticalStepsPerItem(int)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="verticalStepsPerItem()const" remove="all"/> <!--### Obsolete in 4.3-->
-
-    <!-- ### because the CursorAction enum is protected -->
-    <modify-function signature="moveCursor(QAbstractItemView::CursorAction,QFlags&lt;Qt::KeyboardModifier&gt;)" remove="all"/>
   </object-type>
 
   <object-type name="QAbstractPageSetupDialog"/>
   <object-type name="QAbstractPrintDialog"/>
   <object-type name="QAbstractSlider">
-    <modify-function signature="sliderChange(QAbstractSlider::SliderChange)" remove="all"/>
   </object-type>
   <object-type name="QAbstractTextDocumentLayout">
   </object-type>
@@ -1270,7 +1222,6 @@ PyObject* constScanLine(QImage* image, int line) {
       <modify-function signature="standardIconImplementation(QStyle::StandardPixmap, const QStyleOption *, const QWidget *)const" virtual-slot="yes"/>
   </object-type>
   <object-type name="QCommonStyle">
-      <modify-function signature="standardPixmap(QStyle::StandardPixmap, const QStyleOption*,const QWidget*)const" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="standardIconImplementation(QStyle::StandardPixmap, const QStyleOption *, const QWidget *)const" virtual-slot="yes"/>
   </object-type>
   <object-type name="QDataWidgetMapper">
@@ -1512,10 +1463,6 @@ PyObject* constScanLine(QImage* image, int line) {
       </modify-argument>
     </modify-function>
 
-    <modify-function signature="operator=(QStandardItem)" remove="all"/>
-  
-    <modify-function signature="read(QDataStream &amp;)" remove="all"/>
-    <modify-function signature="write(QDataStream &amp;)const" remove="all"/>
     <modify-function signature="operator=(QStandardItem)" remove="all"/>
     <modify-function signature="operator&lt;(QStandardItem)const" remove="all"/>
   </object-type>
@@ -1947,7 +1894,12 @@ PyObject* constScanLine(QImage* image, int line) {
     </modify-function>
       <modify-function signature="items(const QMimeData*)const" remove="all"/> <!--### Obsolete in 4.3-->
   
-    <modify-function signature="mimeData(const QList&lt;QTreeWidgetItem*&gt;)const" remove="all"/>
+    <modify-function signature="mimeData(const QList&lt;QTreeWidgetItem*&gt;)const">
+      <modify-argument index="return">
+        <define-ownership owner="python" />
+      </modify-argument>
+    </modify-function>
+
   </object-type>
 
   <object-type name="QAbstractItemDelegate">
@@ -1960,8 +1912,6 @@ PyObject* constScanLine(QImage* image, int line) {
       <modify-function signature="setBackgroundColor(QColor)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="setTextColor(QColor)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="textColor()const" remove="all"/> <!--### Obsolete in 4.3-->
-    <modify-function signature="read(QDataStream &amp;)" remove="all"/>
-    <modify-function signature="write(QDataStream &amp;)const" remove="all"/>
     <modify-function signature="QTableWidgetItem(QTableWidgetItem)" remove="all"/>
     <modify-function signature="operator=(QTableWidgetItem)" remove="all"/>
     <modify-function signature="operator&lt;(QTableWidgetItem)const" remove="all"/>
@@ -1991,8 +1941,6 @@ PyObject* constScanLine(QImage* image, int line) {
       <modify-function signature="setTextColor(QColor)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="textColor()const" remove="all"/> <!--### Obsolete in 4.3-->
   
-    <modify-function signature="read(QDataStream &amp;)" remove="all"/>
-    <modify-function signature="write(QDataStream &amp;)const" remove="all"/>
     <modify-function signature="QListWidgetItem(QListWidgetItem)" remove="all"/>
     <modify-function signature="operator=(QListWidgetItem)" remove="all"/>
     <modify-function signature="operator&lt;(QListWidgetItem)const" remove="all"/>
@@ -2094,8 +2042,6 @@ PyObject* constScanLine(QImage* image, int line) {
       <modify-function signature="setTextColor(int, QColor)" remove="all"/> <!--### Obsolete in 4.3-->
       <modify-function signature="textColor(int)const" remove="all"/> <!--### Obsolete in 4.3-->
   
-    <modify-function signature="read(QDataStream &amp;)" remove="all"/>
-    <modify-function signature="write(QDataStream &amp;)const" remove="all"/>
     <modify-function signature="QTreeWidgetItem(QTreeWidgetItem)" remove="all"/>
     <modify-function signature="operator=(QTreeWidgetItem)" remove="all"/>
     <modify-function signature="operator&lt;(QTreeWidgetItem)const" remove="all"/>
@@ -2137,7 +2083,11 @@ PyObject* constScanLine(QImage* image, int line) {
     <modify-function signature="isItemSelected(const QListWidgetItem*)const">
         <remove/>
     </modify-function>
-    <modify-function signature="mimeData(const QList&lt;QListWidgetItem*&gt;)const" remove="all"/>
+    <modify-function signature="mimeData(const QList&lt;QListWidgetItem*&gt;)const">
+      <modify-argument index="return">
+        <define-ownership owner="python" />
+      </modify-argument>
+    </modify-function>
   </object-type>
 
   <object-type name="QWidget">
@@ -2584,7 +2534,11 @@ PyObject* constScanLine(QImage* image, int line) {
     <modify-function signature="isItemSelected(const QTableWidgetItem*)const">
         <remove/>
     </modify-function>
-    <modify-function signature="mimeData(const QList&lt;QTableWidgetItem*&gt;)const" remove="all"/>
+    <modify-function signature="mimeData(const QList&lt;QTableWidgetItem*&gt;)const">
+      <modify-argument index="return">
+        <define-ownership owner="python" />
+      </modify-argument>
+    </modify-function>
   </object-type>
   <object-type name="QTextDocument">
     <extra-includes>
@@ -3167,6 +3121,13 @@ PyObject* constScanLine(QImage* image, int line) {
   <enum-type name="QSurfaceFormat::RenderableType"/>
   <enum-type name="QSurfaceFormat::SwapBehavior"/>
   <enum-type name="QSurfaceFormat::OpenGLContextProfile"/>
+  <enum-type name="QSurfaceFormat::ColorSpace"/>
+
+  <enum-type name="QOpenGLFramebufferObject::FramebufferRestorePolicy"/>
+  <enum-type name="QPagedPaintDevice::PdfVersion"/>
+
+  <object-type name="QOpenGLTextureBlitter"/>
+  <enum-type name="QOpenGLTextureBlitter::Origin"/>
 
   <!-- Inefficient hash codes -->
   <suppress-warning text="WARNING(MetaJavaBuilder) :: Class 'QTextFrame_iterator' has equals operators but no qHash() function. Hashcode of objects will consistently be 0."/>

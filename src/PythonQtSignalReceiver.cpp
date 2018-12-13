@@ -52,6 +52,7 @@ int PythonQtSignalReceiver::_destroyedSignal1Id = -2;
 int PythonQtSignalReceiver::_destroyedSignal2Id = -2;
 
 void PythonQtSignalTarget::call(void **arguments) const {
+  PYTHONQT_GIL_SCOPE
   PyObject* result = call(_callable, methodInfo(), arguments);
   if (result) {
     Py_DECREF(result);
@@ -177,7 +178,10 @@ PythonQtSignalReceiver::PythonQtSignalReceiver(QObject* obj):PythonQtSignalRecei
 
 PythonQtSignalReceiver::~PythonQtSignalReceiver()
 {
+  // we need the GIL scope here, because the targets keep references to Python objects
+  PYTHONQT_GIL_SCOPE;
   PythonQt::priv()->removeSignalEmitter(_obj);
+  _targets.clear();
 }
 
 
@@ -261,7 +265,8 @@ int PythonQtSignalReceiver::qt_metacall(QMetaObject::Call c, int id, void **argu
     QObject::qt_metacall(c, id, arguments);
   }
 
-  Q_FOREACH(const PythonQtSignalTarget& t, _targets) {
+  bool shouldDelete = false;
+  for(const PythonQtSignalTarget& t : _targets) {
     if (t.slotId() == id) {
       t.call(arguments);
       // if the signal is the last destroyed signal, we delete ourselves
@@ -269,11 +274,14 @@ int PythonQtSignalReceiver::qt_metacall(QMetaObject::Call c, int id, void **argu
       if ((sigId == _destroyedSignal1Id) || (sigId == _destroyedSignal2Id)) {
         _destroyedSignalCount--;
         if (_destroyedSignalCount == 0) {
-          delete this;
+          shouldDelete = true;
         }
       }
       break;
     }
+  }
+  if (shouldDelete) {
+    delete this;
   }
   return 0;
 }

@@ -47,6 +47,8 @@ QHash<QByteArray, PythonQtMethodInfo*> PythonQtMethodInfo::_cachedSignatures;
 QHash<int, PythonQtMethodInfo::ParameterInfo> PythonQtMethodInfo::_cachedParameterInfos;
 QHash<QByteArray, QByteArray> PythonQtMethodInfo::_parameterNameAliases;
 
+bool PythonQtSlotInfo::_globalShouldAllowThreads = false;
+
 PythonQtMethodInfo::PythonQtMethodInfo(const QMetaMethod& meta, PythonQtClassInfo* classInfo)
 {
 #ifdef PYTHONQT_DEBUG
@@ -64,6 +66,8 @@ PythonQtMethodInfo::PythonQtMethodInfo(const QMetaMethod& meta, PythonQtClassInf
     fillParameterInfo(type, name, classInfo);
     _parameters.append(type);
   }
+
+  setupAllowThreads();
 }
 
 PythonQtMethodInfo::PythonQtMethodInfo(const QByteArray& typeName, const QList<QByteArray>& args)
@@ -75,6 +79,20 @@ PythonQtMethodInfo::PythonQtMethodInfo(const QByteArray& typeName, const QList<Q
     fillParameterInfo(type, name, NULL);
     _parameters.append(type);
   }
+  setupAllowThreads();
+}
+
+void PythonQtMethodInfo::setupAllowThreads()
+{
+  bool allowThreads = true;
+  for (const ParameterInfo& info : _parameters) {
+    if (info.name == "PyObject" || info.name == "PythonQtObjectPtr" ||
+      info.innerName == "PyObject" || info.innerName == "PythonQtObjectPtr") {
+      allowThreads = false;
+      break;
+    }
+  }
+  _shouldAllowThreads = allowThreads;
 }
 
 const PythonQtMethodInfo* PythonQtMethodInfo::getCachedMethodInfo(const QMetaMethod& signal, PythonQtClassInfo* classInfo)
@@ -620,4 +638,19 @@ QByteArray PythonQtSlotInfo::getImplementingClassName() const
   } else {
     return _meta.enclosingMetaObject()->className();
   }
+}
+
+void PythonQtSlotInfo::invokeQtMethod(QObject* obj, PythonQtSlotInfo* slot, void** args)
+{
+  if (slot->shouldAllowThreads() && _globalShouldAllowThreads) {
+    PYTHONQT_ALLOW_THREADS_SCOPE
+    obj->qt_metacall(QMetaObject::InvokeMetaMethod, slot->slotIndex(), args);
+  } else {
+    obj->qt_metacall(QMetaObject::InvokeMetaMethod, slot->slotIndex(), args);
+  }
+}
+
+void PythonQtSlotInfo::setGlobalShouldAllowThreads(bool flag)
+{
+  _globalShouldAllowThreads = flag;
 }

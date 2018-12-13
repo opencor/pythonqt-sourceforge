@@ -52,26 +52,16 @@
 
 #include <QByteArray>
 
-#define PYTHONQT_MAX_ARGS 32
-
+#if defined(__GNUG__) && !defined(__clang__)
+#include <cxxabi.h>
+#endif
 
 bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObject* args, bool strict, PythonQtSlotInfo* info, void* firstArgument, PyObject** pythonReturnValue, void** directReturnValuePointer, PythonQtPassThisOwnershipType* passThisOwnershipToCPP)
 {
-  static unsigned int recursiveEntry = 0;
-
   if (directReturnValuePointer) {
     *directReturnValuePointer = NULL;
   }
-  // store the current storage position, so that we can get back to this state after a slot is called
-  // (do this locally, so that we have all positions on the stack
-  PythonQtValueStoragePosition globalValueStoragePos;
-  PythonQtValueStoragePosition globalPtrStoragePos;
-  PythonQtValueStoragePosition globalVariantStoragePos;
-  PythonQtConv::global_valueStorage.getPos(globalValueStoragePos);
-  PythonQtConv::global_ptrStorage.getPos(globalPtrStoragePos);
-  PythonQtConv::global_variantStorage.getPos(globalVariantStoragePos);
-
-  recursiveEntry++;
+  PythonQtArgumentFrame* frame = PythonQtArgumentFrame::newFrame();
 
   // the arguments that are passed to qt_metacall
   void* argList[PYTHONQT_MAX_ARGS];
@@ -111,7 +101,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   }
   for (int i = 1 + instanceDecoOffset; i<argc && ok; i++) {
     const PythonQtSlotInfo::ParameterInfo& param = params.at(i);
-    argList[i] = PythonQtConv::ConvertPythonToQt(param, PyTuple_GET_ITEM(args, i - 1 - instanceDecoOffset), strict, classInfo);
+    argList[i] = PythonQtConv::ConvertPythonToQt(param, PyTuple_GET_ITEM(args, i - 1 - instanceDecoOffset), strict, classInfo, NULL, frame);
     if (argList[i]==NULL) {
       ok = false;
       break;
@@ -139,7 +129,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
       // create empty default value for the return value
       if (!directReturnValuePointer) {
         // create empty default value for the return value
-        argList[0] = PythonQtConv::CreateQtReturnValue(returnValueParam);
+        argList[0] = PythonQtConv::CreateQtReturnValue(returnValueParam, frame);
         if (argList[0]==NULL) {
           // return value could not be created, maybe we have a registered class with a default constructor, so that we can construct the pythonqt wrapper object and
           // pass its internal pointer
@@ -181,7 +171,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
       PyErr_SetString(PyExc_RuntimeError, "Trying to call a slot on a deleted QObject!");
     } else {
       try {
-        obj->qt_metacall(QMetaObject::InvokeMetaMethod, info->slotIndex(), argList);
+        PythonQtSlotInfo::invokeQtMethod(obj, info, argList);
       } catch (std::out_of_range & e) {
         hadException = true;
         QByteArray what("std::out_of_range: ");
@@ -208,6 +198,10 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
         what += e.what();
         PyErr_SetString(PyExc_RuntimeError, what.constData());
 #ifdef PYTHONQT_CATCH_ALL_EXCEPTIONS
+  #if defined(__GNUG__) && !defined(__clang__)
+      } catch (abi::__forced_unwind &) {
+        throw;
+  #endif
       } catch (...) {
         hadException = true;
         PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception.");
@@ -241,12 +235,8 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
       ok = false;
     }
   }
-  recursiveEntry--;
 
-  // reset the parameter storage position to the stored pos to "pop" the parameter stack
-  PythonQtConv::global_valueStorage.setPos(globalValueStoragePos);
-  PythonQtConv::global_ptrStorage.setPos(globalPtrStoragePos);
-  PythonQtConv::global_variantStorage.setPos(globalVariantStoragePos);
+  PythonQtArgumentFrame::deleteFrame(frame);
 
   *pythonReturnValue = result;
   

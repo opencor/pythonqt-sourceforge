@@ -50,6 +50,7 @@
 #include "PythonQtSlot.h"
 #include "PythonQtObjectPtr.h"
 #include "PythonQtStdIn.h"
+#include "PythonQtThreadSupport.h"
 #include <QObject>
 #include <QVariant>
 #include <QList>
@@ -73,6 +74,7 @@ typedef void  PythonQtVoidPtrCB(void* object);
 typedef void  PythonQtQObjectWrappedCB(QObject* object);
 typedef void  PythonQtQObjectNoLongerWrappedCB(QObject* object);
 typedef void* PythonQtPolymorphicHandlerCB(const void *ptr, const char **class_name);
+typedef QString PythonQtQObjectMissingAttributeCB(QObject* object, const QString& attribute);
 
 typedef void PythonQtShellSetInstanceWrapperCB(void* object, PythonQtInstanceWrapper* wrapper);
 
@@ -583,6 +585,12 @@ public:
   //! call the callback if it is set
   static void qObjectNoLongerWrappedCB(QObject* o);
 
+  //! set a callback that is called when a QObject does not have a specific attribute.
+  void setQObjectMissingAttributeCallback(PythonQtQObjectMissingAttributeCB* cb);
+
+  //! call the callback if it is set
+  static QString qObjectMissingAttributeCallback(QObject* o, const QString& attribute);
+
   //! called by internal help methods
   PyObject* helpCalled(PythonQtClassInfo* info);
 
@@ -592,6 +600,13 @@ public:
 
   //! sets a callback that is called before and after function calls for profiling
   void setProfilingCallback(ProfilingCB* cb);
+
+  //! Enable GIL and thread state handling (turned off by default).
+  //! If you want to use Python threading, you have to call this
+  //! with true early in your main thread, before you launch
+  //! any threads in Python. It can be called before or after
+  //! PythonQt::init().
+  static void setEnableThreadSupport(bool flag);
 
   //@}
 
@@ -657,6 +672,10 @@ public:
 
   //! returns if the id is the id for PythonQtObjectPtr
   bool isPythonQtObjectPtrMetaId(int id) { return _PythonQtObjectPtr_metaId == id; }
+  //! returns if the id is the id for PythonQtSafeObjectPtr
+  bool isPythonQtSafeObjectPtrMetaId(int id) { return _PythonQtSafeObjectPtr_metaId == id; }
+  //! returns if the id is either PythonQtObjectPtr or PythonQtSafeObjectPtr
+  bool isPythonQtAnyObjectPtrMetaId(int id) { return _PythonQtObjectPtr_metaId == id || _PythonQtSafeObjectPtr_metaId == id; }
 
   //! add the wrapper pointer (for reuse if the same obj appears while wrapper still exists)
   void addWrapperPointer(void* obj, PythonQtInstanceWrapper* wrapper);
@@ -820,6 +839,7 @@ private:
 
   PythonQtQObjectNoLongerWrappedCB* _noLongerWrappedCB;
   PythonQtQObjectWrappedCB* _wrappedCB;
+  PythonQtQObjectMissingAttributeCB* _qObjectMissingAttribCB;
 
   QStringList _importIgnorePaths;
   QStringList _sharedLibrarySuffixes;
@@ -842,6 +862,7 @@ private:
 
   int _initFlags;
   int _PythonQtObjectPtr_metaId;
+  int _PythonQtSafeObjectPtr_metaId;
 
   bool _hadError;
   bool _systemExitExceptionHandlerEnabled;
