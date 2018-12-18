@@ -256,6 +256,7 @@ virtual void customEvent(QEvent*  event);
 virtual bool  event(QEvent*  event);
 virtual bool  eventFilter(QObject*  watched, QEvent*  event);
 virtual void highlightBlock(const QString&  text);
+virtual void rehighlightBlock(const QTextBlock& block);
 virtual void timerEvent(QTimerEvent*  event);
 
   const QMetaObject* metaObject() const;
@@ -271,12 +272,14 @@ inline QTextBlockUserData*  promoted_currentBlockUserData() const { return this-
 inline QTextCharFormat  promoted_format(int  pos) const { return this->format(pos); }
 inline void promoted_highlightBlock(const QString&  text) { this->highlightBlock(text); }
 inline int  promoted_previousBlockState() const { return this->previousBlockState(); }
+inline void promoted_rehighlightBlock(const QTextBlock& block) { this->rehighlightBlock(block); }
 inline void promoted_setCurrentBlockState(int  newState) { this->setCurrentBlockState(newState); }
 inline void promoted_setCurrentBlockUserData(QTextBlockUserData*  data) { this->setCurrentBlockUserData(data); }
 inline void promoted_setFormat(int  start, int  count, const QColor&  color) { this->setFormat(start, count, color); }
 inline void promoted_setFormat(int  start, int  count, const QFont&  font) { this->setFormat(start, count, font); }
 inline void promoted_setFormat(int  start, int  count, const QTextCharFormat&  format) { this->setFormat(start, count, format); }
 inline void py_q_highlightBlock(const QString&  text) { this->highlightBlock(text); }
+inline void py_q_rehighlightBlock(const QTextBlock& block) { this->rehighlightBlock(block); }
 };
 
 class PythonQtWrapper_QSyntaxHighlighter : public QObject
@@ -293,6 +296,8 @@ void delete_QSyntaxHighlighter(QSyntaxHighlighter* obj) { delete obj; }
    void highlightBlock(QSyntaxHighlighter* theWrappedObject, const QString&  text);
    void py_q_highlightBlock(QSyntaxHighlighter* theWrappedObject, const QString&  text){  (((PythonQtPublicPromoter_QSyntaxHighlighter*)theWrappedObject)->py_q_highlightBlock(text));}
    int  previousBlockState(QSyntaxHighlighter* theWrappedObject) const;
+   void rehighlightBlock(QSyntaxHighlighter* theWrappedObject, const QTextBlock& block);
+   void py_q_rehighlightBlock(QSyntaxHighlighter* theWrappedObject, const QTextBlock& block){  (((PythonQtPublicPromoter_QSyntaxHighlighter*)theWrappedObject)->py_q_rehighlightBlock(block));}
    void setCurrentBlockState(QSyntaxHighlighter* theWrappedObject, int  newState);
    void setCurrentBlockUserData(QSyntaxHighlighter* theWrappedObject, QTextBlockUserData*  data);
    void setDocument(QSyntaxHighlighter* theWrappedObject, QTextDocument*  doc);
