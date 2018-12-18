@@ -828,9 +828,6 @@ if (_wrapper) {
 }
   QSyntaxHighlighter::timerEvent(event0);
 }
-QSyntaxHighlighter* PythonQtWrapper_QSyntaxHighlighter::new_QSyntaxHighlighter(QObject*  parent)
-{ 
-return new PythonQtShell_QSyntaxHighlighter(parent); }
 
 QSyntaxHighlighter* PythonQtWrapper_QSyntaxHighlighter::new_QSyntaxHighlighter(QTextDocument*  parent)
 { 
