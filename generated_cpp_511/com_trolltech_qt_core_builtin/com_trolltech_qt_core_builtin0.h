@@ -1333,3 +1333,76 @@ public slots:
 };
 
 
+
+
+class PythonQtShell_QObject : public QObject
+{
+public:
+    PythonQtShell_QObject(QObject*  parent = nullptr):QObject(parent),_wrapper(NULL) {};
+
+   ~PythonQtShell_QObject();
+
+virtual void childEvent(QChildEvent*  event);
+virtual void customEvent(QEvent*  event);
+virtual bool  event(QEvent*  event);
+virtual bool  eventFilter(QObject*  watched, QEvent*  event);
+virtual void timerEvent(QTimerEvent*  event);
+
+  const QMetaObject* metaObject() const;
+  int qt_metacall(QMetaObject::Call call, int id, void** args);
+  PythonQtInstanceWrapper* _wrapper;
+};
+
+class PythonQtPublicPromoter_QObject : public QObject
+{ public:
+inline void promoted_childEvent(QChildEvent*  event) { this->childEvent(event); }
+inline void promoted_customEvent(QEvent*  event) { this->customEvent(event); }
+inline bool  promoted_isSignalConnected(const QMetaMethod&  signal) const { return this->isSignalConnected(signal); }
+inline QObject*  promoted_sender() const { return this->sender(); }
+inline int  promoted_senderSignalIndex() const { return this->senderSignalIndex(); }
+inline void promoted_timerEvent(QTimerEvent*  event) { this->timerEvent(event); }
+inline void py_q_childEvent(QChildEvent*  event) { QObject::childEvent(event); }
+inline void py_q_customEvent(QEvent*  event) { QObject::customEvent(event); }
+inline bool  py_q_event(QEvent*  event) { return QObject::event(event); }
+inline bool  py_q_eventFilter(QObject*  watched, QEvent*  event) { return QObject::eventFilter(watched, event); }
+inline void py_q_timerEvent(QTimerEvent*  event) { QObject::timerEvent(event); }
+};
+
+class PythonQtWrapper_QObject : public QObject
+{ Q_OBJECT
+public:
+public slots:
+QObject* new_QObject(QObject*  parent = nullptr);
+void delete_QObject(QObject* obj) { delete obj; }
+   bool  blockSignals(QObject* theWrappedObject, bool  b);
+   void childEvent(QObject* theWrappedObject, QChildEvent*  event);
+   void py_q_childEvent(QObject* theWrappedObject, QChildEvent*  event){  (((PythonQtPublicPromoter_QObject*)theWrappedObject)->py_q_childEvent(event));}
+   const QList<QObject* >*  children(QObject* theWrappedObject) const;
+   void customEvent(QObject* theWrappedObject, QEvent*  event);
+   void py_q_customEvent(QObject* theWrappedObject, QEvent*  event){  (((PythonQtPublicPromoter_QObject*)theWrappedObject)->py_q_customEvent(event));}
+   void dumpObjectInfo(QObject* theWrappedObject);
+   void dumpObjectInfo(QObject* theWrappedObject) const;
+   void dumpObjectTree(QObject* theWrappedObject);
+   void dumpObjectTree(QObject* theWrappedObject) const;
+   QList<QByteArray >  dynamicPropertyNames(QObject* theWrappedObject) const;
+   bool  event(QObject* theWrappedObject, QEvent*  event);
+   bool  py_q_event(QObject* theWrappedObject, QEvent*  event){  return (((PythonQtPublicPromoter_QObject*)theWrappedObject)->py_q_event(event));}
+   bool  eventFilter(QObject* theWrappedObject, QObject*  watched, QEvent*  event);
+   bool  py_q_eventFilter(QObject* theWrappedObject, QObject*  watched, QEvent*  event){  return (((PythonQtPublicPromoter_QObject*)theWrappedObject)->py_q_eventFilter(watched, event));}
+   void installEventFilter(QObject* theWrappedObject, QObject*  filterObj);
+   bool  isSignalConnected(QObject* theWrappedObject, const QMetaMethod&  signal) const;
+   bool  isWidgetType(QObject* theWrappedObject) const;
+   bool  isWindowType(QObject* theWrappedObject) const;
+   void killTimer(QObject* theWrappedObject, int  id);
+   void moveToThread(QObject* theWrappedObject, QThread*  thread);
+   QString  objectName(QObject* theWrappedObject) const;
+   void removeEventFilter(QObject* theWrappedObject, QObject*  obj);
+   QObject*  sender(QObject* theWrappedObject) const;
+   int  senderSignalIndex(QObject* theWrappedObject) const;
+   void setObjectName(QObject* theWrappedObject, const QString&  name);
+   bool  signalsBlocked(QObject* theWrappedObject) const;
+   int  startTimer(QObject* theWrappedObject, int  interval, Qt::TimerType  timerType = Qt::CoarseTimer);
+   QThread*  thread(QObject* theWrappedObject) const;
+   void timerEvent(QObject* theWrappedObject, QTimerEvent*  event);
+   void py_q_timerEvent(QObject* theWrappedObject, QTimerEvent*  event){  (((PythonQtPublicPromoter_QObject*)theWrappedObject)->py_q_timerEvent(event));}
+};
