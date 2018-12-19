@@ -101,7 +101,12 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
   }
   for (int i = 1 + instanceDecoOffset; i<argc && ok; i++) {
     const PythonQtSlotInfo::ParameterInfo& param = params.at(i);
-    argList[i] = PythonQtConv::ConvertPythonToQt(param, PyTuple_GET_ITEM(args, i - 1 - instanceDecoOffset), strict, classInfo, NULL, frame);
+    PyObject *arg = PyTuple_GET_ITEM(args, i - 1 - instanceDecoOffset);
+    if (arg && (param.pointerCount == 1) && (param.name == "PyObject")) {
+      // We need to ref-count the PyObject that is being passed to the slot
+      Py_INCREF(arg);
+    }
+    argList[i] = PythonQtConv::ConvertPythonToQt(param, arg, strict, classInfo, NULL, frame);
     if (argList[i]==NULL) {
       ok = false;
       break;
