@@ -306,9 +306,9 @@ PythonQtMemberInfo PythonQtClassInfo::member(const char* memberName)
   } else {
     bool found = false;
   
-    found = lookForPropertyAndCache(memberName);
+    found = lookForMethodAndCache(memberName);
     if (!found) {
-      found = lookForMethodAndCache(memberName);
+      found = lookForPropertyAndCache(memberName);
     }
     if (!found) {
       if (_meta) {
